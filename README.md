@@ -15,15 +15,20 @@ Inspired by the [AssemblyAI profanity-filter-demo](https://github.com/AssemblyAI
 - **Beep censorship** - profane segments are replaced with a tone at the exact timestamps
 - **Transcript & report** - view censored transcript and flagged words with timestamps
 - **Custom word lists** - add blocked or allowed words in the sidebar
-- **Download** - export the moderated MP3 
+- **Download** - export the moderated MP3
 
 ## How it works
 
 ```
-Audio upload - AssemblyAI transcription (profanity filter on)
-             - Find censored words (e.g. f***)
-             - Splice beeps at word timestamps (pydub + FFmpeg)
-             = Return moderated audio + transcript + flags
+You upload an audio file via the ClearWave interface.
+
+The backend sends the file to AssemblyAI for transcription with filter_profanity: true.
+
+The backend retrieves the timestamps of censored words.
+
+Using pydub and FFmpeg, the backend overlays a beep tone onto the audio file.
+
+You receive a moderated MP3 and a clean transcript.
 ```
 
 1. You upload an audio file.
