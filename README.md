@@ -1,4 +1,4 @@
-# Audio Profanity Moderator
+# Filthy-Lang-Censor
 
 Upload an audio file, detect profanity with [AssemblyAI](https://www.assemblyai.com/), and download the same recording with every bad word replaced by a beep.
 
