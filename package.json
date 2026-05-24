@@ -1,0 +1,11 @@
+{
+  "name": "clearwave-audio-moderator",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "setup": "cd backend && python -m venv .venv && .venv/bin/pip install -r requirements.txt && cd ../frontend && npm install",
+    "backend": "bash start-backend.sh",
+    "frontend": "bash start-frontend.sh",
+    "dev": "echo 'Run in two terminals: npm run backend  &&  npm run frontend'"
+  }
+}
