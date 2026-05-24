@@ -20,15 +20,13 @@ Inspired by the [AssemblyAI profanity-filter-demo](https://github.com/AssemblyAI
 ## How it works
 
 ```
-You upload an audio file via the ClearWave interface.
+Audio upload - AssemblyAI transcription (profanity filter on)
 
-The backend sends the file to AssemblyAI for transcription with filter_profanity: true.
+             - Find censored words (e.g. f***)
 
-The backend retrieves the timestamps of censored words.
+             - Splice beeps at word timestamps (pydub + FFmpeg)
 
-Using pydub and FFmpeg, the backend overlays a beep tone onto the audio file.
-
-You receive a moderated MP3 and a clean transcript.
+             = Return moderated audio + transcript + flags
 ```
 
 1. You upload an audio file.
