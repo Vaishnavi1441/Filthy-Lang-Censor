@@ -15,7 +15,7 @@ Inspired by the [AssemblyAI profanity-filter-demo](https://github.com/AssemblyAI
 - **Beep censorship** - profane segments are replaced with a tone at the exact timestamps
 - **Transcript & report** - view censored transcript and flagged words with timestamps
 - **Custom word lists** - add blocked or allowed words in the sidebar
-- **Download** - export the moderated MP3
+- **Download** - export the moderated MP3 
 
 ## How it works
 
