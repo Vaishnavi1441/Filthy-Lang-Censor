@@ -758,7 +758,7 @@ async function moderateAudio(file, config, onProgress) {
 
   onProgress?.(5, 0);
 
-  const response = await fetch("https://clearwave.onrender.com/api/moderate", {
+  const response = await fetch("https://clearwave-api.onrender.com", {
     method: "POST",
     body: formData,
   });
