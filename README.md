@@ -21,8 +21,11 @@ Inspired by the [AssemblyAI profanity-filter-demo](https://github.com/AssemblyAI
 
 ```
 Audio upload - AssemblyAI transcription (profanity filter on)
+
              - Find censored words (e.g. f***)
+
              - Splice beeps at word timestamps (pydub + FFmpeg)
+
              = Return moderated audio + transcript + flags
 ```
 
