@@ -279,7 +279,7 @@ const SettingsSidebar = ({ config, onChange }) => {
               color: "var(--txt-hi)", fontSize: 13, fontFamily: "inherit", cursor: "pointer",
             }}
           >
-            {["English","Spanish","French","German","Japanese","Portugese"].map(l => (
+            {["English","Hindi"].map(l => (
               <option key={l}>{l}</option>
             ))}
           </select>
@@ -311,7 +311,6 @@ const SettingsSidebar = ({ config, onChange }) => {
         <div className="glass" style={{ borderRadius: 10, padding: 14, display: "flex", flexDirection: "column", gap: 12 }}>
           {[
             { key: "bleepAudio", label: "Auto-bleep audio" },
-            { key: "exportReport", label: "Export report" },
             { key: "detectContext", label: "Context detection" },
           ].map(({ key, label }) => (
             <div key={key} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -758,7 +757,7 @@ async function moderateAudio(file, config, onProgress) {
 
   onProgress?.(5, 0);
 
-  const response = await fetch("https://clearwave-api.onrender.com/api/moderate", {
+  const response = await fetch("/api/moderate", {
     method: "POST",
     body: formData,
   });

@@ -30,12 +30,28 @@ def _is_profanity_word(
     allowed: set[str],
 ) -> bool:
     normalized = _normalize_word(word_text)
+    
+    # 1. Exact match (for regular text or exact allowed text)
     if normalized in allowed or word_text.lower() in allowed:
         return False
+        
+    # 2. Check if AssemblyAI masked it (e.g., "f***")
+    if PROFANITY_PATTERN.search(word_text):
+        # Clean trailing punctuation (like commas) but keep the asterisks
+        clean_masked = "".join(c for c in word_text if c.isalpha() or c == '*')
+        
+        # Check if the masked word shape matches an allowed word
+        for a_word in allowed:
+            if len(clean_masked) == len(a_word) and clean_masked[0].lower() == a_word[0].lower():
+                return False # We assume this masked word is the allowed word
+                
+        return True # It's masked profanity, but didn't match our allowed list
+
+    # 3. Check custom blocked words
     if _matches_blocked(word_text, blocked):
         return True
-    # AssemblyAI replaces profanity with first letter + asterisks (e.g. "f***")
-    return bool(PROFANITY_PATTERN.search(word_text))
+        
+    return False
 
 
 def _format_timestamp(ms: int) -> str:
@@ -66,6 +82,8 @@ def find_flagged_words(
     transcript: dict,
     blocked: list[str] | None = None,
     allowed: list[str] | None = None,
+    sensitivity: int = 2,
+    context_detection: bool = True,
 ) -> list[dict]:
     blocked_set = {_normalize_word(word) for word in (blocked or []) if word.strip()}
     allowed_set = {_normalize_word(word) for word in (allowed or []) if word.strip()}
@@ -76,15 +94,27 @@ def find_flagged_words(
         text = word.get("text", "")
         if not _is_profanity_word(text, blocked_set, allowed_set):
             continue
+            
+        sev = _severity(text)
+        
+        # SENSITIVITY LOGIC:
+        # If sensitivity is 0 (Low), ignore "low" severity words.
+        if sensitivity == 0 and sev == "low":
+            continue
+
+        # CONTEXT LOGIC:
+        # Skip generating snippets if disabled to save processing
+        context_text = _context_snippet(words, index) if context_detection else "Context detection disabled"
+
         flagged.append(
             {
                 "time": _format_timestamp(word["start"]),
                 "start_ms": word["start"],
                 "end_ms": word["end"],
                 "word": text,
-                "severity": _severity(text),
+                "severity": sev,
                 "category": CATEGORY,
-                "context": _context_snippet(words, index),
+                "context": context_text,
             }
         )
 
@@ -97,8 +127,18 @@ def censor_audio(
     blocked: list[str] | None = None,
     allowed: list[str] | None = None,
     bleep_audio: bool = True,
+    sensitivity: int = 2,
+    context_detection: bool = True,
 ) -> tuple[bytes, list[dict]]:
-    flagged = find_flagged_words(transcript, blocked=blocked, allowed=allowed)
+    # 1. Pass the new arguments into find_flagged_words
+    flagged = find_flagged_words(
+        transcript, 
+        blocked=blocked, 
+        allowed=allowed, 
+        sensitivity=sensitivity, 
+        context_detection=context_detection
+    )
+    
     sound = AudioSegment.from_file(audio_path)
 
     if not bleep_audio or not flagged:
@@ -106,20 +146,14 @@ def censor_audio(
         sound.export(buffer, format="mp3")
         return buffer.getvalue(), flagged
 
-    blocked_set = {_normalize_word(word) for word in (blocked or []) if word.strip()}
-    allowed_set = {_normalize_word(word) for word in (allowed or []) if word.strip()}
-    words = transcript.get("words") or []
-
     output = AudioSegment.empty()
     last_end = 0
 
-    for word in words:
-        text = word.get("text", "")
-        if not _is_profanity_word(text, blocked_set, allowed_set):
-            continue
-
-        start = word["start"]
-        end = word["end"]
+    # 2. Iterate directly over 'flagged' instead of recalculating 
+    # This guarantees the audio beeps exactly match your filtered results!
+    for item in flagged:
+        start = item["start_ms"]
+        end = item["end_ms"]
         output += sound[last_end:start]
         output += _make_beep(end - start)
         last_end = end

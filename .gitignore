@@ -3,6 +3,8 @@ backend/.venv/
 backend/__pycache__/
 backend/outputs/
 .env
+audio.py
+run.txt
 
 # Node/React
 frontend/node_modules/
